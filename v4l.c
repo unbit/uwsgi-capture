@@ -40,9 +40,9 @@ static int captureinit() {
                 exit(1);
 	}
 
-	uwsgi_log("v4l detected width = %d\n", ucapture.fmt.fmt.pix.width);
-	uwsgi_log("v4l detected height = %d\n", ucapture.fmt.fmt.pix.height);
-	uwsgi_log("v4l detected format = %.*s\n", 4, &ucapture.fmt.fmt.pix.pixelformat);
+	uwsgi_log("%s detected width = %d\n", ucapture.v4l_device, ucapture.fmt.fmt.pix.width);
+	uwsgi_log("%s detected height = %d\n", ucapture.v4l_device, ucapture.fmt.fmt.pix.height);
+	uwsgi_log("%s detected format = %.*s\n", ucapture.v4l_device, 4, &ucapture.fmt.fmt.pix.pixelformat);
 
 	struct v4l2_buffer vbuf;
 	memset(&vbuf, 0, sizeof(struct v4l2_buffer));
@@ -80,6 +80,8 @@ static int captureinit() {
         	uwsgi_error("ioctl()");
                 exit(1);
 	}
+
+	uwsgi_log("%s started streaming frames to sharedarea %d\n", ucapture.v4l_device, ucapture.sa->id);
 
 	return 0;
 }

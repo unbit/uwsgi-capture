@@ -4,14 +4,14 @@
 
 		<script>
 
-			var width = 640;
-			var height = 480;
 
 			var canvas = document.getElementById('mystream');
+			var width = canvas.width;
+			var height = canvas.height;
 			var ctx = canvas.getContext("2d");
 			var rgba = ctx.getImageData(0, 0, width, height);
 
-			// fill alpha
+			// fill alpha (optimization)
 			for(y = 0; y< height; y++) {
                         	for(x = 0; x < width; x++) {
                                 	pos = (y * width * 4) + (x * 4) ;
@@ -19,8 +19,8 @@
                                 }
                         }    
 
-
-			var ws = new WebSocket('ws://raspberrypi.local:9090/eyetoy');
+			// connect to the PSGI websocket server
+			var ws = new WebSocket('ws://' + window.location.host + '/eyetoy');
 			ws.binaryType = 'arraybuffer';
 			ws.onopen = function(e) {
 				console.log('ready');
@@ -29,6 +29,7 @@
 			ws.onmessage = function(e) {
 				var x, y;
 				var ycbcr = new Uint8ClampedArray(e.data);
+				// convert YUYV to RGBA
 				for(y = 0; y< height; y++) {
 					for(x = 0; x < width; x++) {
 						pos = (y * width * 4) + (x * 4) ;
@@ -53,6 +54,7 @@
 						rgba.data[pos+2] = vy + b;
 					}
 				}		
+				// draw pixels
 				ctx.putImageData(rgba, 0, 0);
 			};
 			ws.onclose = function(e) { alert('goodbye');}
